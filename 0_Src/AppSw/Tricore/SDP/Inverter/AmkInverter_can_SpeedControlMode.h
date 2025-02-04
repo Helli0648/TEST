@@ -1,0 +1,339 @@
+#ifndef AMKINVERTER_CAN_SPEEDCONTROLMODE_H_
+#define AMKINVERTER_CAN_SPEEDCONTROLMODE_H_
+
+#include <Ifx_Types.h>
+#include "Configuration.h"
+#include "ConfigurationIsr.h"
+#include <stdint.h>
+#include "Multican.h"
+#include "CanCommunication.h"
+
+#define AMK_TORQUE_LIM  2143
+#define AMK_MAXIMUM_SPEED   18000
+
+typedef struct
+{
+	uint8 AMK_bReserve : 8;
+	boolean AMK_bSystemReady :1;
+	boolean AMK_bWarn : 1;
+	boolean AMK_bSError : 1;
+	boolean AMK_bQuitDcOn : 1;
+	boolean AMK_bDcOn : 1;
+	boolean AMK_bQuitInverterOn : 1;
+	boolean AMK_bInverterOn : 1;
+	boolean AMK_bDerating : 1;
+}AMKInternalCan_Status;
+
+typedef struct
+{
+	uint8 AMK_bReserve1 : 8;
+	boolean AMK_bInverterOn : 1;
+	boolean AMK_bDcOn : 1;
+	boolean AMK_bEnable : 1;
+	boolean AMK_bErrorReset : 1;
+	uint8 AMK_bReserve2 : 4;
+}AMKInternalCan_Control;
+
+
+
+typedef struct
+{
+	unsigned short ID_AMK_Ac1;
+	unsigned short ID_AMK_Ac2;
+	unsigned short ID_AMK_Set;
+}AMKInverterInternalCan_IDset;
+
+typedef union
+{
+	uint32 RecievedData[2];
+	struct{
+		uint8 AMK_bReserve : 8;
+		boolean AMK_bSystemReady : 1;
+		boolean AMK_bSError : 1;
+		boolean AMK_bWarn : 1;
+		boolean AMK_bQuitDcOn : 1;
+		boolean AMK_bDcOn : 1;
+		boolean AMK_bQuitInverterOn : 1;
+		boolean AMK_bInverterOn : 1;
+		boolean AMK_bDerating : 1;
+		sint16 AMK_ActualVelocity : 16;
+		sint16 AMK_TorqueCurrent : 16;
+		sint16 AMK_MagnetizingCurrent : 16;
+	}S;
+}AMKInveterInternalCan_ActualValues1;
+
+typedef union
+{
+	uint32 RecievedData[2];
+	    struct{
+			sint16 AMK_TempMotor : 16;
+	        sint16 AMK_TempInverter : 16;
+	        unsigned short AMK_ErrorInfo : 16;
+	        sint16 AMK_TempIGBT : 16;
+	    }S;
+}AMKInveterInternalCan_ActualValues2;
+
+typedef union
+{
+	uint32 TransmitData[2];
+	    struct{
+			uint8 AMK_bReserve1 : 8;
+			boolean AMK_bInverterOn : 1;
+			boolean AMK_bDcOn : 1;
+			boolean AMK_bEnable : 1;
+			boolean AMK_bErrorReset : 1;
+			uint8 AMK_bReserve2 : 4;
+	    	sint16 AMK_Speed_setpoint: 16;	
+	        sint16 AMK_TorqueLimitPositv : 16;
+	        sint16 AMK_TorqueLimitNegativ : 16;
+	    }S;
+}AMKInverterInternalCan_Setpoint1;
+
+
+
+
+typedef union{
+	uint32 TransmitData[2];
+	struct{
+		unsigned short EFon;
+		unsigned short BE1on;
+		unsigned short BE2on;
+		unsigned short Remain;
+	}B;
+}Inv_switch_msg_t;
+
+typedef enum AmkState_e
+{
+    AmkState_S0 = 0,    //Power On
+    AmkState_S1 = 1,    //System Ready
+    AmkState_S2 = 2,    //DC On
+    AmkState_S3 = 3,    //EF on
+    AmkState_S4 = 4,    //BE1 on
+    AmkState_S5 = 5,    //Enable/InverterEnable on
+    AmkState_RTD    //Ready To Drive
+} AmkState_t;
+
+typedef struct 
+{
+	AmkState_t r2d;
+
+	float32 fl;
+	float32 fr;
+	float32 rl;
+	float32 rr;
+
+	float32 spdFl;
+	float32 spdFr;
+	float32 spdRl;
+	float32 spdRr;
+
+	boolean brakeOn;
+
+	IfxCpu_mutexLock mutex;
+}AmkInverterPublic_t;
+
+struct Monitor
+{
+    int InverterTemp;
+    struct {
+        unsigned short error_FL;
+        unsigned short error_RL;
+        unsigned short error_RR;
+        unsigned short error_FR;
+    }InverterErrorState;
+    struct {
+        sint16 temp_FL;
+        sint16 temp_RL;
+        sint16 temp_RR;
+        sint16 temp_FR;
+    }MotorTemp;
+    struct{
+        sint16 velocity_FL;
+        sint16 velocity_RL;
+        sint16 velocity_RR;
+        sint16 velocity_FR;
+    } MotorVelocity;
+    // struct MotorCurrent{
+    //     unsigned short velocity_RL;
+    //     unsigned short velocity_FL;
+    //     unsigned short velocity_RR;
+    //     unsigned short velocity_FR;
+    // }
+};
+
+typedef struct 
+{
+	struct Monitor monitor;
+	IfxCpu_mutexLock mutex;
+} AmkInverterMonitorPublic_t;
+ 
+
+
+ /*************************** For logger ****************************/
+typedef struct 
+{
+    uint8 DCon;
+    uint8 Enable;
+    uint8 inverter;
+    unsigned short SpeedSetpoint;
+    unsigned short negTorquelimit;
+    uint8 ErrorReset;
+    uint32 Checker;
+    boolean BE1;
+    boolean BE2;
+    boolean EF;
+} SWITCHset;
+
+
+
+/******* Logging *******/
+typedef union AmkSetpoint1_FL
+{
+    // infineon tc (VCU)
+    // -> uint32 tx_data[2];
+    uint32 tx_data[2];
+    struct
+    {
+        uint8 AMK_bReserve1           :8;         //[0-7]
+        boolean AMK_bInverterOn            :1;         //[8]
+        boolean AMK_bDcOn                  :1;         //[9]
+        boolean AMK_bEnable                :1;         //[10]
+        boolean AMK_bErrorReset            :1;         //[11]
+        uint8 AMK_bReserve2           :4;         //[12-15]
+		sint16 AMK_Speed_setpoint    :16;	    //[16-31]
+		sint16 AMK_TorqueLimitPositv  :16;        //[32-47]
+		sint16 AMK_TorqueLimitNegativ :16;        //[48-63]
+    } s;
+} amk_setpoint1_fl_t;
+
+typedef union AmkSetpoint1_FR
+{
+    uint32 tx_data[2];
+    struct
+    {
+        uint8 AMK_bReserve1           :8;         //[0-7]
+        boolean AMK_bInverterOn            :1;         //[8]
+        boolean AMK_bDcOn                  :1;         //[9]
+        boolean AMK_bEnable                :1;         //[10]
+        boolean AMK_bErrorReset            :1;         //[11]
+        uint8 AMK_bReserve2           :4;         //[12-15]
+		sint16 AMK_Speed_setpoint    :16;	    //[16-31]
+		sint16 AMK_TorqueLimitPositv  :16;        //[32-47]
+		sint16 AMK_TorqueLimitNegativ :16;        //[48-63]
+    } s;
+} amk_setpoint1_fr_t;
+
+typedef union AmkActualValues1_FL
+{
+    uint32 tx_data[2];
+    struct
+    {
+        uint8 AMK_bReserve                    :8;         //[0-7]
+        boolean AMK_bSystemReady                   :1;         //[8]
+        boolean AMK_bSError                        :1;         //[9]
+        boolean AMK_bWarn                          :1;         //[10]
+        boolean AMK_bQuitDcOn                      :1;         //[11]
+        boolean AMK_bDcOn                          :1;         //[12]
+        boolean AMK_bQuitInverterOn                :1;         //[13]
+        boolean AMK_bInverterOn                    :1;         //[14]
+        boolean AMK_bDerating                      :1;         //[15]
+        sint16 AMK_ActualVelocity             :16;        //[16-31]
+        sint16 AMK_TorqueCurrent              :16;        //[32-47]
+        sint16 AMK_MagnetizingCurrent         :16;        //[48-63]
+    } s;
+} amk_actual_values1_fl_t;
+
+typedef union AmkActualValues1_FR
+{
+    uint32 tx_data[2];
+    struct
+    {
+        uint8 AMK_bReserve                    :8;     //[0-7]
+        boolean AMK_bSystemReady                   :1;     //[8]
+        boolean AMK_bSError                        :1;     //[9]
+        boolean AMK_bWarn                          :1;     //[10]
+        boolean AMK_bQuitDcOn                      :1;     //[11]
+        boolean AMK_bDcOn                          :1;     //[12]
+        boolean AMK_bQuitInverterOn                :1;     //[13]
+        boolean AMK_bInverterOn                    :1;     //[14]
+        boolean AMK_bDerating                      :1;     //[15]
+        sint16 AMK_ActualVelocity             :16;    //[16-31]
+        sint16 AMK_TorqueCurrent              :16;    //[32-47]
+        sint16 AMK_MagnetizingCurrent         :16;    //[48-63]
+    } s;
+} amk_actual_values1_fr_t;
+
+typedef union AmkActualValues2_FL
+{
+    uint32 tx_data[2];
+    struct
+    {
+	    sint16 AMK_TempMotor      :16;    //[0-15]
+		sint16 AMK_TempInverter   :16;    //[16-31]
+		unsigned short AMK_ErrorInfo      :16;    //[32-47]
+		sint16 AMK_TempIGBT       :16;    //[48-63]
+    } s;
+} amk_actual_values2_fl_t;
+
+typedef union AmkActualValues2_FR
+{
+    uint32 tx_data[2];
+    struct
+    {
+	    sint16 AMK_TempMotor      :16;    //[0-15]
+		sint16 AMK_TempInverter   :16;    //[16-31]
+		unsigned short AMK_ErrorInfo      :16;    //[32-47]
+		sint16 AMK_TempIGBT       :16;    //[48-63]
+    } s;
+} amk_actual_values2_fr_t;
+/******* Logging ********/
+
+
+
+/*********************************************************************/
+
+IFX_EXTERN AmkInverterPublic_t AmkInverterPublic;
+
+IFX_EXTERN AmkInverterMonitorPublic_t AmkInverterMonitorPublic;
+
+IFX_EXTERN Inv_switch_msg_t Inv_switch_msg;
+IFX_EXTERN AMKInveterInternalCan_ActualValues1 INV_FL_AMK_Actual_Values1;
+IFX_EXTERN AMKInveterInternalCan_ActualValues1 INV_RL_AMK_Actual_Values1;
+IFX_EXTERN AMKInveterInternalCan_ActualValues1 INV_RR_AMK_Actual_Values1;
+IFX_EXTERN AMKInveterInternalCan_ActualValues1 INV_FR_AMK_Actual_Values1;
+
+IFX_EXTERN AMKInveterInternalCan_ActualValues2 INV_FL_AMK_Actual_Values2;
+IFX_EXTERN AMKInveterInternalCan_ActualValues2 INV_RL_AMK_Actual_Values2;
+IFX_EXTERN AMKInveterInternalCan_ActualValues2 INV_RR_AMK_Actual_Values2;
+IFX_EXTERN AMKInveterInternalCan_ActualValues2 INV_FR_AMK_Actual_Values2;
+
+IFX_EXTERN AMKInverterInternalCan_Setpoint1 INV1_AMK_Setpoint1;
+IFX_EXTERN AMKInverterInternalCan_Setpoint1 INV2_AMK_Setpoint1;
+IFX_EXTERN AMKInverterInternalCan_Setpoint1 INV3_AMK_Setpoint1;
+IFX_EXTERN AMKInverterInternalCan_Setpoint1 INV4_AMK_Setpoint1;
+
+IFX_EXTERN AMKInverterInternalCan_IDset Inverter1;
+IFX_EXTERN AMKInverterInternalCan_IDset Inverter2;
+IFX_EXTERN AMKInverterInternalCan_IDset Inverter3;
+IFX_EXTERN AMKInverterInternalCan_IDset Inverter4;
+
+IFX_EXTERN AmkState_t AmkState;
+
+IFX_EXTERN amk_setpoint1_fl_t amk_setpoint1_fl;
+IFX_EXTERN amk_setpoint1_fr_t amk_setpoint1_fr;
+IFX_EXTERN amk_actual_values1_fl_t amk_actual_values1_fl;
+IFX_EXTERN amk_actual_values1_fr_t amk_actual_values1_fr;
+IFX_EXTERN amk_actual_values2_fl_t amk_actual_values2_fl;
+IFX_EXTERN amk_actual_values2_fr_t amk_actual_values2_fr;
+
+IFX_EXTERN SWITCHset SWITCH;
+
+IFX_EXTERN void AmkInverter_can_init(void);
+IFX_EXTERN void AmkInverter_can_Run(void);
+IFX_EXTERN void AmkInverter_can_write(AMKInverterInternalCan_Setpoint1 *INV, CanCommunication_Message TC, unsigned short tV);
+IFX_EXTERN void AmkInverter_writeMessage(unsigned short Value1, unsigned short Value2);
+IFX_EXTERN void AmkInverter_writeMessage2(unsigned short Value1, unsigned short Value2);
+IFX_EXTERN void InverterControlSet();
+IFX_EXTERN void AmkInverter_Start(boolean rtdFlag);
+
+#endif
