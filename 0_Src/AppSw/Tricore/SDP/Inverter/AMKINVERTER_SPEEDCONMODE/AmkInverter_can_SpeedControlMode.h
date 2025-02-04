@@ -1,5 +1,5 @@
-#ifndef AMKINVERTER_CAN_H_
-#define AMKINVERTER_CAN_H_
+#ifndef AMKINVERTER_CAN_SPEEDCONTROLMODE_H_
+#define AMKINVERTER_CAN_SPEEDCONTROLMODE_H_
 
 #include <Ifx_Types.h>
 #include "Configuration.h"
@@ -38,9 +38,9 @@ typedef struct
 
 typedef struct
 {
-	uint16 ID_AMK_Ac1;
-	uint16 ID_AMK_Ac2;
-	uint16 ID_AMK_Set;
+	unsigned short ID_AMK_Ac1;
+	unsigned short ID_AMK_Ac2;
+	unsigned short ID_AMK_Set;
 }AMKInverterInternalCan_IDset;
 
 typedef union
@@ -68,7 +68,7 @@ typedef union
 	    struct{
 			sint16 AMK_TempMotor : 16;
 	        sint16 AMK_TempInverter : 16;
-	        uint16 AMK_ErrorInfo : 16;
+	        unsigned short AMK_ErrorInfo : 16;
 	        sint16 AMK_TempIGBT : 16;
 	    }S;
 }AMKInveterInternalCan_ActualValues2;
@@ -95,10 +95,10 @@ typedef union
 typedef union{
 	uint32 TransmitData[2];
 	struct{
-		uint16 EFon;
-		uint16 BE1on;
-		uint16 BE2on;
-		uint16 Remain;
+		unsigned short EFon;
+		unsigned short BE1on;
+		unsigned short BE2on;
+		unsigned short Remain;
 	}B;
 }Inv_switch_msg_t;
 
@@ -136,10 +136,10 @@ struct Monitor
 {
     int InverterTemp;
     struct {
-        uint16 error_FL;
-        uint16 error_RL;
-        uint16 error_RR;
-        uint16 error_FR;
+        unsigned short error_FL;
+        unsigned short error_RL;
+        unsigned short error_RR;
+        unsigned short error_FR;
     }InverterErrorState;
     struct {
         sint16 temp_FL;
@@ -154,10 +154,10 @@ struct Monitor
         sint16 velocity_FR;
     } MotorVelocity;
     // struct MotorCurrent{
-    //     uint16 velocity_RL;
-    //     uint16 velocity_FL;
-    //     uint16 velocity_RR;
-    //     uint16 velocity_FR;
+    //     unsigned short velocity_RL;
+    //     unsigned short velocity_FL;
+    //     unsigned short velocity_RR;
+    //     unsigned short velocity_FR;
     // }
 };
 
@@ -175,8 +175,8 @@ typedef struct
     uint8 DCon;
     uint8 Enable;
     uint8 inverter;
-    uint16 SpeedSetpoint;
-    int16_t negTorquelimit;
+    unsigned short SpeedSetpoint;
+    unsigned short negTorquelimit;
     uint8 ErrorReset;
     uint32 Checker;
     boolean BE1;
@@ -270,7 +270,7 @@ typedef union AmkActualValues2_FL
     {
 	    sint16 AMK_TempMotor      :16;    //[0-15]
 		sint16 AMK_TempInverter   :16;    //[16-31]
-		uint16 AMK_ErrorInfo      :16;    //[32-47]
+		unsigned short AMK_ErrorInfo      :16;    //[32-47]
 		sint16 AMK_TempIGBT       :16;    //[48-63]
     } s;
 } amk_actual_values2_fl_t;
@@ -282,7 +282,7 @@ typedef union AmkActualValues2_FR
     {
 	    sint16 AMK_TempMotor      :16;    //[0-15]
 		sint16 AMK_TempInverter   :16;    //[16-31]
-		uint16 AMK_ErrorInfo      :16;    //[32-47]
+		unsigned short AMK_ErrorInfo      :16;    //[32-47]
 		sint16 AMK_TempIGBT       :16;    //[48-63]
     } s;
 } amk_actual_values2_fr_t;
@@ -332,9 +332,9 @@ IFX_EXTERN
 
 IFX_EXTERN void AmkInverter_can_init(void);
 IFX_EXTERN void AmkInverter_can_Run(void);
-IFX_EXTERN void AmkInverter_can_write(AMKInverterInternalCan_Setpoint1 *INV, CanCommunication_Message TC, uint16 tV);
-IFX_EXTERN void AmkInverter_writeMessage(uint16 Value1, uint16 Value2);
-IFX_EXTERN void AmkInverter_writeMessage2(uint16 Value1, uint16 Value2);
+IFX_EXTERN void AmkInverter_can_write(AMKInverterInternalCan_Setpoint1 *INV, CanCommunication_Message TC, unsigned short tV);
+IFX_EXTERN void AmkInverter_writeMessage(unsigned short Value1, unsigned short Value2);
+IFX_EXTERN void AmkInverter_writeMessage2(unsigned short Value1, unsigned short Value2);
 IFX_EXTERN void InverterControlSet();
 IFX_EXTERN void AmkInverter_Start(boolean rtdFlag);
 

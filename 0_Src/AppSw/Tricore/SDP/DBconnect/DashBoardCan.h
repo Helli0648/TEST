@@ -12,7 +12,7 @@
 #include "Configuration.h"
 #include "CanCommunication.h"
 #include "Gpio_Debounce.h"
-#include "AmkInverter_can.h"
+#include "AmkInverter_can_SpeedControlMode.h"
 #include "Platform_Types.h"
 
 /***************************** Macro *********************************/

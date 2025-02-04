@@ -17,7 +17,7 @@
 #include "CanCommunication.h"
 #include "AccumulatorManager_master.h"
 #include "RVC.h"
-#include "AmkInverter_can.h"
+#include "AmkInverter_can_SpeedControlMode.h"
 #include "OrionBms2.h"
 #include "SteeringWheel.h"
 #include "DashBoardCan.h"

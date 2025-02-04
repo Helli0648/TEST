@@ -42,7 +42,7 @@ TODO:
 #include "TorqueVectoring/TorqueVectoring.h"
 
 #include "SteeringWheel.h"
-#include "AmkInverter_can.h"
+#include "AmkInverter_can_SpeedControlMode.h"
 #include "DashBoardCan.h"
 
 /**************************** Macro **********************************/

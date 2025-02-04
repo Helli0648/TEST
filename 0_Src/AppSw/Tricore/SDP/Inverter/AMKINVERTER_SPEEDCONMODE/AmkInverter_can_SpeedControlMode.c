@@ -1,10 +1,12 @@
+
+#include <stdint.h>
 #include "AmkInverter_can_SpeedControlMode.h"
 #include "HLD.h"
 
 
 const float Inverter_peak_current = 107.2;
 const float Nominal_torque = 9.8;
-const uint16 InvCtr = 0x160;
+const unsigned short InvCtr = 0x160;
 boolean alreadyOn=0; 
 
 AMKInverterInternalCan_IDset Inverter_FL;
@@ -60,12 +62,12 @@ amk_actual_values1_fr_t amk_actual_values1_fr;
 amk_actual_values2_fl_t amk_actual_values2_fl;
 amk_actual_values2_fr_t amk_actual_values2_fr;
 
-IFX_CONST amk_setpoint_fl_MsgID = 0x40100;
-IFX_CONST amk_setpoint_fr_MsgID = 0x40101;
-IFX_CONST amk_actual_values1_fl_MsgID = 0x40102;
-IFX_CONST amk_actual_values1_fr_MsgID = 0x40103;
-IFX_CONST amk_actual_values2_fl_MsgID = 0x40104;
-IFX_CONST amk_actual_values2_fr_MsgID = 0x40105;
+IFX_CONST unsigned short amk_setpoint_fl_MsgID = 0x40100;
+IFX_CONST unsigned short amk_setpoint_fr_MsgID = 0x40101;
+IFX_CONST unsigned short amk_actual_values1_fl_MsgID = 0x40102;
+IFX_CONST unsigned short amk_actual_values1_fr_MsgID = 0x40103;
+IFX_CONST unsigned short amk_actual_values2_fl_MsgID = 0x40104;
+IFX_CONST unsigned short amk_actual_values2_fr_MsgID = 0x40105;
 
 CanCommunication_Message amk_setpoint1_fl_msgObj;
 CanCommunication_Message amk_setpoint1_fr_msgObj;
@@ -78,14 +80,14 @@ CanCommunication_Message amk_actual_values2_fr_msgObj;
 
 void AmkInverter_can_init(void);
 void AmkInverter_can_Run(void);
-void AmkInverter_can_write(AMKInverterInternalCan_Setpoint1 *INV, CanCommunication_Message TC, uint16 tV);
+void AmkInverter_can_write(AMKInverterInternalCan_Setpoint1 *INV, CanCommunication_Message TC, unsigned short tV);
 
 static void setPointInit(AMKInverterInternalCan_Setpoint1 *setpoint);
 
-static void setReceiveMessage(uint16 ID, CanCommunication_Message *Rm,uint8 node);
-static void setTransmitMessage(uint16 ID, CanCommunication_Message *Tm,uint8 node);
-void AmkInverter_writeMessage(uint16 Value1, uint16 Value2);
-void AmkInverter_writeMessage2(uint16 Value1, uint16 Value2);
+static void setReceiveMessage(unsigned short ID, CanCommunication_Message *Rm,uint8 node);
+static void setTransmitMessage(unsigned short ID, CanCommunication_Message *Tm,uint8 node);
+void AmkInverter_writeMessage(unsigned short Value1, unsigned short Value2);
+void AmkInverter_writeMessage2(unsigned short Value1, unsigned short Value2);
 
 
 
@@ -95,8 +97,7 @@ uint32 AmkState_S3cnt = 0;
 const uint32 AmkState_constS2threshold = 100;
 const uint32 AmkState_constS3threshold = 100;
 
-struct Monitor Monitor;//
-struct SWITCHset SWITCH = {0,0,0,0,0,0};
+struct Monitor Monitor;
 AmkState_t AmkState = AmkState_S0;
 
 AmkInverterMonitorPublic_t AmkInverterMonitorPublic;
@@ -240,7 +241,7 @@ void AmkInverter_can_Run(void)
 	}
 }
 
-void AmkInverter_can_write(AMKInverterInternalCan_Setpoint1 *INV, CanCommunication_Message TC, uint16 tV)
+void AmkInverter_can_write(AMKInverterInternalCan_Setpoint1 *INV, CanCommunication_Message TC, unsigned short tV)
 {    
     if (SWITCH.DCon&&SWITCH.Enable&&SWITCH.inverter&&(SWITCH.SpeedSetpoint>0))INV->S.AMK_TorqueLimitPositv = tV;
     INV->S.AMK_bDcOn = SWITCH.DCon;
@@ -271,7 +272,7 @@ void InverterControlSet(){
     CanCommunication_transmitMessage(&T_InvCtr);
 }
 
-void AmkInverter_writeMessage(uint16 Value1, uint16 Value2)
+void AmkInverter_writeMessage(unsigned short Value1, unsigned short Value2)
 {
 
     AmkInverter_can_write(&INV_FL_AMK_Setpoint1,T_TC275_FL,Value1);
@@ -283,7 +284,7 @@ void AmkInverter_writeMessage(uint16 Value1, uint16 Value2)
     // }
 
 }
-void AmkInverter_writeMessage2(uint16 Value1, uint16 Value2)
+void AmkInverter_writeMessage2(unsigned short Value1, unsigned short Value2)
 {    
 
     AmkInverter_can_write(&INV_RR_AMK_Setpoint1,T_TC275_RR,Value1);
@@ -483,7 +484,7 @@ static void setPointInit(AMKInverterInternalCan_Setpoint1 *setpoint){
     setpoint->S.AMK_TorqueLimitNegativ = 0;
 }
 
-static void setReceiveMessage(uint16 ID, CanCommunication_Message *Rm,uint8 node){
+static void setReceiveMessage(unsigned short ID, CanCommunication_Message *Rm,uint8 node){
 
     CanCommunication_Message_Config config_Message_Recive;
     config_Message_Recive.messageId        =   ID;
@@ -504,7 +505,7 @@ static void setReceiveMessage(uint16 ID, CanCommunication_Message *Rm,uint8 node
 
 }
 
-static void setTransmitMessage(uint16 ID, CanCommunication_Message *Tm,uint8 node){
+static void setTransmitMessage(unsigned short ID, CanCommunication_Message *Tm,uint8 node){
 
     CanCommunication_Message_Config config_Message_Transmit;
     config_Message_Transmit.messageId        =   ID;

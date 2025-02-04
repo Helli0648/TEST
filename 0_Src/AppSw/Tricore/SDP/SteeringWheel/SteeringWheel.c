@@ -12,7 +12,7 @@
 
 /***************************** Includes ******************************/
 #include "SteeringWheel.h"
-#include "AmkInverter_can.h"
+#include "AmkInverter_can_SpeedControlMode.h"
 
 
 /**************************** Macro **********************************/
