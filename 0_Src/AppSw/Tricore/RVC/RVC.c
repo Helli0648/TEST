@@ -680,7 +680,7 @@ IFX_INLINE void RVC_getTorqueRequired(void)
 #else
 	if(SDP_PedalBox.bpps.isValueOk)		//BPPS Plausibility check
 	{
-		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD)
+		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD)	//When Break Pedals pressed more than 10%
 		{
 			RVC.torque.desired = -(SDP_PedalBox.bpps.pps);		//BPPS overide
 			if(RVC.torque.isRegenOn)							//Regen
@@ -697,6 +697,49 @@ IFX_INLINE void RVC_getTorqueRequired(void)
 	{
 		RVC.torque.controlled = 0;		//BPPS Fail
 	}
+	//Added by KimSiho
+	//When Rpm is mor larger than threshold then we get regen. not only check bpps, but also speed. 
+	/*Belows are Modified code.*/
+
+	/*'
+	define RegemWheelSpeedTHRESHOLD 120	 //unit : RPM
+
+	#incldue <stdlib.h>
+	
+	#include "WheelSpeed.h"
+
+		if(SDP_PedalBox.bpps.isValueOk)		//BPPS Plausibility check
+	{
+		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD)
+		{
+			RVC.torque.desired = -(SDP_PedalBox.bpps.pps);		//BPPS overide
+			if(RVC.torque.isRegenOn & SDP_WheelSpeed.velocity.chassis > RegemWheelSpeedTHRESHOLD)							//Regen
+			{
+				RVC.torque.controlled = RVC.torque.desired;
+			}
+			else 
+			{
+				RVC.torque.controlled = (RVC.torque.desired = 0);	//Regen off: Zero torque signal when brake on.
+			}	
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	*/
+
+
+
+
+
+
 #endif
 }
 
