@@ -104,10 +104,10 @@ void Task_core2_1ms(void)
 		IfxCpu_releaseMutex(&AmkInverterPublic.mutex);
 	}
 
-	valueFl = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsFl);
-	valueFr = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsFr);
-	valueRl = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsRl);
-	valueRr = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsRr);
+	valueFl = ((float32)AMK_MAXIMUM_SPEED / (100.0f) * tpsFl);
+	valueFr = ((float32)AMK_MAXIMUM_SPEED / (100.0f) * tpsFr);
+	valueRl = ((float32)AMK_MAXIMUM_SPEED / (100.0f) * tpsRl);
+	valueRr = ((float32)AMK_MAXIMUM_SPEED / (100.0f) * tpsRr);
 
 
 	// AmkInverter_writeMessage(value,value);

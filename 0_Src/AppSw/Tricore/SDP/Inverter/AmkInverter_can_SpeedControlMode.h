@@ -328,8 +328,6 @@ IFX_EXTERN amk_actual_values2_fr_t amk_actual_values2_fr;
 
 IFX_EXTERN SWITCHset SWITCH;
 
-IFX_EXTERN 
-
 IFX_EXTERN void AmkInverter_can_init(void);
 IFX_EXTERN void AmkInverter_can_Run(void);
 IFX_EXTERN void AmkInverter_can_write(AMKInverterInternalCan_Setpoint1 *INV, CanCommunication_Message TC, unsigned short tV);
