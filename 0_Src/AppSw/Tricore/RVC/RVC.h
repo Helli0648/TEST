@@ -9,6 +9,7 @@
 
 /* Includes */
 #include "SDP.h"
+#include "Platform_Types.h"
 
 /* Data Structures */
 typedef struct

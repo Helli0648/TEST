@@ -36,11 +36,13 @@ TODO:
 #include "AdcSensor.h"
 #include "AdcForceStart.h"
 
+	
 #include "RVC.h"
 #include "RVC_privateDataStructure.h"
 #include "RVC_r2dSound.h"
 #include "TorqueVectoring/TorqueVectoring.h"
 
+#include "WheelSpeed.h"
 #include "SteeringWheel.h"
 #include "AmkInverter_can_SpeedControlMode.h"
 #include "DashBoardCan.h"
@@ -48,6 +50,7 @@ TODO:
 /**************************** Macro **********************************/
 #define PWMFREQ 5000 // PWM frequency in Hz
 #define PWMVREF 5.0  // PWM reference voltage (On voltage)
+#define REGENWHEELSPEEDTHRESHOLD 120 // Minimum RPM to do regen in RPM
 
 /*
 #define OUTCAL_LEFT_MUL 1.06
@@ -678,48 +681,49 @@ IFX_INLINE void RVC_getTorqueRequired(void)
 		RVC.torque.controlled = (RVC.torque.desired = 0);	//Zero torque signal when brake on.
 	}
 #else
-	if(SDP_PedalBox.bpps.isValueOk)		//BPPS Plausibility check
+	if(SDP_PedalBox.bpps.isValueOk)																						//BPPS Plausibility check
 	{
-		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD)	//When Break Pedals pressed more than 10%
+		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD) 																//Make some gap.
 		{
-			RVC.torque.desired = -(SDP_PedalBox.bpps.pps);		//BPPS overide
-			if(RVC.torque.isRegenOn)							//Regen
+		
+			if(RVC.torque.isRegenOn & (SDP_WheelSpeed.velocity.chassis > REGENWHEELSPEEDTHRESHOLD) & ())							//Regen
 			{
+				RVC.torque.desired = -(SDP_PedalBox.bpps.pps);																//BPPS overide //Brake pedal lut for regen is needed
 				RVC.torque.controlled = RVC.torque.desired;
 			}
 			else 
 			{
-				RVC.torque.controlled = (RVC.torque.desired = 0);	//Regen off: Zero torque signal when brake on.
+				RVC.torque.controlled = (RVC.torque.desired = 0);															//Regen off: Zero torque signal when car is too slow or RegenMode turns off.
 			}	
 		}
-	}
 	else //FIXME: BSPD control using Brake Pressure Analog signal. Failsafe for BPPS.
 	{
 		RVC.torque.controlled = 0;		//BPPS Fail
 	}
+
+
+
 	//Added by KimSiho
 	//When Rpm is mor larger than threshold then we get regen. not only check bpps, but also speed. 
 	/*Belows are Modified code.*/
 
 	/*'
-	define RegemWheelSpeedTHRESHOLD 120	 //unit : RPM
 
-	#incldue <stdlib.h>
-	
-	#include "WheelSpeed.h"
 
-		if(SDP_PedalBox.bpps.isValueOk)		//BPPS Plausibility check
+
+		if(SDP_PedalBox.bpps.isValueOk)																						//BPPS Plausibility check
 	{
-		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD)
+		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD) 																//Make some gap.
 		{
-			RVC.torque.desired = -(SDP_PedalBox.bpps.pps);		//BPPS overide
-			if(RVC.torque.isRegenOn & SDP_WheelSpeed.velocity.chassis > RegemWheelSpeedTHRESHOLD)							//Regen
+			
+			if(RVC.torque.isRegenOn & SDP_WheelSpeed.velocity.chassis > REGENWHEELSPEEDTHRESHOLD)							//Regen
 			{
+				RVC.torque.desired = -(SDP_PedalBox.bpps.pps);																//BPPS overide
 				RVC.torque.controlled = RVC.torque.desired;
 			}
 			else 
 			{
-				RVC.torque.controlled = (RVC.torque.desired = 0);	//Regen off: Zero torque signal when brake on.
+				RVC.torque.controlled = (RVC.torque.desired = 0);															//Regen off: Zero torque signal when car is too slow or RegenMode turns off.
 			}	
 		}
 	}

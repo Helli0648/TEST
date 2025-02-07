@@ -335,5 +335,7 @@ IFX_EXTERN void AmkInverter_writeMessage(unsigned short Value1, unsigned short V
 IFX_EXTERN void AmkInverter_writeMessage2(unsigned short Value1, unsigned short Value2);
 IFX_EXTERN void InverterControlSet();
 IFX_EXTERN void AmkInverter_Start(boolean rtdFlag);
+IFX_EXTERN void AMKInverter_initLoggingMessage(void);
+IFX_EXTERN void AMKInverter_runLogging_10ms(void);
 
 #endif
