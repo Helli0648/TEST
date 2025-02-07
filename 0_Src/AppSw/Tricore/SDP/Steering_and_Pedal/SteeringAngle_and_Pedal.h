@@ -4,11 +4,11 @@
  * Author: Kimsiho
  */
 
-#ifndef APPSW_TRICORE_SDP_STEERINGANDPEDAL_STEERINGANGLEANDPEDAL.H
-#define APPSW_TRICORE_SDP_STEERINGANDPEDAL_STEERINGANGLEANDPEDAL.H
+#ifndef APPSW_TRICORE_SDP_STEERINGANDPEDAL_STEERINGANGLEANDPEDAL_H_
+#define APPSW_TRICORE_SDP_STEERINGANDPEDAL_STEERINGANGLEANDPEDAL_H_
 /*********************************** Includes **********************************/
 #include "CanCommunication.h"
-
+#include "Platform_Types.h"
 /***************************** Macro *********************************/
 
 
@@ -18,11 +18,10 @@ typedef union SteeringAndPedal
     uint32 tx_data[2];
     struct
     {
-        uint16 steering_angle     :16;    //[0-15]      //angel -> angle 수정함. 
+        sint32 steering_angle     :32;    //[0-15]      //angel -> angle 수정함.
         uint8 apps                :8;     //[16-23]
         uint8 bpps                :8;     //[24-31]
         uint16 brake_pressure     :16;    //[32-47]
-        uint16 reserved_0         :16;    //[48-63]
     } s;
 }steering_and_pedal_t;
 

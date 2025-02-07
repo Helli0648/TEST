@@ -285,9 +285,7 @@ void Task_10ms_slot1 (void)
 
 	//SDP
 	SDP_Cooling_run_10ms();
-	SDP_Accumulator_run_10ms();
-	AMKInverter_runLogging_10ms();
-	SDP_SteeringAngleandPedal_run_10ms();
+
 	//	HLD_Imu_run_10ms_s1();
 
 	// SDP_ShockValue_run_log();
